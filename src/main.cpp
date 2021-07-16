@@ -165,19 +165,19 @@ void mqttCallback(char* topic, byte* payload, unsigned int len)
   Serial.print(" ");
   Serial.println((char)payload[0]); // FIXME LEN
 */
-  if (strstr(topic, "/smarthomeNG/start"))
+  if (strstr(topic, "/watermeter/start"))
   {
     if (len == 4) // True
     {
       // maybe to something
     }
   }
-  else if (strstr(topic, "/espmeter/reset"))
+  else if (strstr(topic, "/watermeter/reset"))
   {
     if (len == 4) // True
     {
       // maybe to something
-      const char *topic = "/espmeter/reset/status";
+      const char *topic = "/watermeter/reset/status";
       const char *msg = "False";
       mqttClient.publish(topic, msg);
       mqttClient.loop();
@@ -196,8 +196,11 @@ bool mqttConnect()
   mqttClient.setServer(credentials[cred][2], 1883);
   mqttClient.setCallback(mqttCallback);
 
-  // connect client to retainable last will message
-  return mqttClient.connect(ESP_NAME, "/watermeter/online", 0, true, "False");
+  // connect client to retainable last will message without credentials
+  // return mqttClient.connect(ESP_NAME, "/watermeter/online", 0, true, "False");
+
+  // connect client to retainable last will message with credentials
+  return mqttClient.connect(ESP_NAME, MQTT_USER, MQTT_PASS, "/watermeter/online", 0, true, "False");
 }
 
 void mqttSubscribe()
@@ -221,7 +224,7 @@ void mqttSubscribe()
 //  Serial.println(MyIp);
 
   // if smarthome.py restarts -> publish init values
-  s = "/smarthomeNG/start";
+  s = "/watermeter/start";
   mqttClient.subscribe(s.c_str());
 
   // if True; meter data are published every 5 seconds
@@ -230,7 +233,7 @@ void mqttSubscribe()
   mqttClient.subscribe(s.c_str());
 
   // if True -> perform an reset
-  s = "/espmeter/reset";
+  s = "/watermeter/reset";
   mqttClient.subscribe(s.c_str());
 }
 
